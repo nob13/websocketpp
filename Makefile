@@ -53,9 +53,9 @@ ifeq ($(OS), Darwin)
 else
 	cxxflags_default = -c -Wall -O2 -DNDEBUG -I$(BOOST_INCLUDE_PATH)
 endif
-cxxflags_small   = -c 
-cxxflags_debug   = -c -g -O0
-cxxflags_shared  = -f$(PIC)
+cxxflags_small   = -c -I$(BOOST_INCLUDE_PATH)
+cxxflags_debug   = -c -g -O0 -I$(BOOST_INCLUDE_PATH)
+cxxflags_shared  = -f$(PIC) -I$(BOOST_INCLUDE_PATH)
 libname          = libwebsocketpp
 libname_hdr      = websocketpp
 libname_debug    = $(libname)
