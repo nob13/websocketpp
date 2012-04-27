@@ -214,6 +214,7 @@ public:
     connection_ptr connect(connection_ptr con);
     
     void run(bool perpetual = false);
+    void run_max (int timeoutMs);
     void end_perpetual();
     void reset();
 protected:
@@ -302,6 +303,30 @@ void client<endpoint>::run(bool perpetual) {
     
     m_endpoint.m_state = endpoint::STOPPED;
 }
+
+static void stopIoServiceHandler (const boost::system::error_code & ec, boost::asio::io_service * service) {
+	if (!ec) {
+		service->stop();
+	}
+}
+
+template <class endpoint>
+void client<endpoint>::run_max(int timeoutMs) {
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(m_endpoint.m_lock);
+
+        if (m_endpoint.m_state != endpoint::IDLE) {
+            throw exception("client::run called from invalid state",error::INVALID_STATE);
+        }
+        m_endpoint.m_state = endpoint::RUNNING;
+    }
+    boost::asio::deadline_timer timer (m_io_service, boost::get_system_time() + boost::posix_time::milliseconds(timeoutMs));
+    timer.async_wait (boost::bind (&stopIoServiceHandler, _1, &m_io_service));
+    m_io_service.run();
+    m_endpoint.m_state = endpoint::STOPPED;
+    reset();
+}
+
 
 /// End the idle work loop that keeps the io_service active
 /**
