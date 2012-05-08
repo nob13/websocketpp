@@ -36,6 +36,7 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/random.hpp>
+#include <boost/random/random_device.hpp>
 
 #include "../endpoint.hpp"
 #include "../uri.hpp"
